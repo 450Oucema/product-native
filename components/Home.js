@@ -7,7 +7,7 @@ const Stack = createStackNavigator();
 
 export default function Home() {
     return (
-        <Stack.Navigator headerShown={false} headerMode={'none'}>
+        <Stack.Navigator headerMode="float">
             <Stack.Screen name="Feed" component={Feed} />
             <Stack.Screen name="Product" component={Product} />
         </Stack.Navigator>

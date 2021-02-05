@@ -1,41 +1,73 @@
 import React from 'react';
-import {StyleSheet, View, Alert, Text, StatusBar, Image, Dimensions, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, Text, Image, Dimensions, ImageBackground, ScrollView} from 'react-native';
 import {ProductList} from "./components/ProductList";
-import Header from "./components/Header";
+import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource'
+const CartContext = React.createContext('light');
+const {height, width} = Dimensions.get('window')
+const heroSize = () => {
+    let source = resolveAssetSource(require('./assets/hero-feed.jpg'))
+    const screenWidth = width
+    const scaleFactor = (source.width / screenWidth)
+    const imageHeight = (source.height / scaleFactor)
+    return {screenWidth, imageHeight}
+};
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: StatusBar.currentHeight || 25,
-    },
-    jumbotron: {
-        width: null,
-        marginBottom: 10
     },
     baseText: {
-        fontFamily: "Cochin"
+        color: "white",
+        fontSize: 30,
+        textAlign: 'center',
     },
     titleText: {
-        fontSize: 20,
+        color: "white",
+        fontSize: 42,
         fontWeight: "bold",
         textAlign: 'center',
-        width: '75%',
     },
+    hero: {
+        width: heroSize().screenWidth,
+        height: heroSize().imageHeight,
+        flex: 1,
+        resizeMode: "cover",
+        justifyContent: "center",
+        position: 'relative',
+        bottom: 0, //Here is the trick
+    },
+    banner: {
+        flex: 0.3,
+        justifyContent: 'center',
+        color: "white",
+        fontSize: 42,
+        backgroundColor: "#000000a0",
+    },
+    row: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20
+    }
 });
+
 
 export default class Feed extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            titleText: "Hello everybody, welcome to my superstore",
-            bodyText: "To purchase something, don't forget to log in.",
-            isSearching: true
+            isSearching: false,
         }
         this.handleTap = this.handleTap.bind(this);
         this.handleNavigate = this.handleNavigate.bind(this);
+        console.log(this.context)
     }
+
+    static contextType = CartContext;
 
     handleTap() {
         let searching = this.state.isSearching;
@@ -49,10 +81,25 @@ export default class Feed extends React.Component {
     render() {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={this.handleTap}>
-                    <Header/>
-                </TouchableOpacity>
-                <ProductList handleNavigate={this.handleNavigate} isSearching={this.state.isSearching}/>
+                <ScrollView>
+                    <View>
+                        <ImageBackground source={require('./assets/hero-feed.jpg')} style={styles.hero}>
+                            <View style={styles.banner}>
+                                <Text style={styles.titleText}>Nouveautés</Text>
+                                <Text style={styles.baseText}>Découvrez les dernières tendances</Text>
+                            </View>
+                        </ImageBackground>
+                        <View style={styles.row}>
+                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'powderblue'}} />
+                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'skyblue'}} />
+                        </View>
+                        <View style={styles.row}>
+                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'red'}} />
+                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'pink'}} />
+                        </View>
+                        <ProductList handleNavigate={this.handleNavigate} isSearching={this.state.isSearching}/>
+                    </View>
+                </ScrollView>
         </View>
         )
     }

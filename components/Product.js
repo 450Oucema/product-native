@@ -1,11 +1,13 @@
 import React from "react"
-import {View, Text, StyleSheet, Image, Dimensions, ScrollView, ImageBackground} from "react-native";
+import {View, Text, StyleSheet, Dimensions, ImageBackground, AsyncStorage } from "react-native";
 import RNPickerSelect from 'react-native-picker-select';
 import {Button} from "react-native-paper";
+import { ThemeProvider } from 'styled-components/native'
+import {ToastProvider, ToastContext } from 'react-native-styled-toast'
+import CartProvider from "../providers/CartProvider";
+import CartContext from "../contexts/CartContext";
 
-const deviceHeight = Dimensions.get('window').height
 const deviceWidth = Dimensions.get('window').width
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -69,6 +71,19 @@ let pickerSelectStyles = StyleSheet.create({
     }
 });
 
+const toastStyle =  {
+    space: [0, 4, 8, 12, 16, 20, 24, 32, 40, 48],
+    colors: {
+        text: '#0A0A0A',
+        background: '#FFF',
+        border: '#E2E8F0',
+        muted: '#F0F1F3',
+        success: '#7DBE31',
+        error: '#FC0021',
+        info: '#00FFFF'
+    }
+}
+
 export default class Product extends React.Component {
     constructor(props) {
         super(props);
@@ -77,16 +92,26 @@ export default class Product extends React.Component {
             size: '',
             pickerStyle: pickerSelectStyles
         }
+
+        this.sizeAvailables = [
+            { label: 'XS', value: 'XS' },
+            { label: 'S', value: 'S' },
+            { label: 'M', value: 'M' },
+            { label: 'L', value: 'L' },
+            { label: 'XL', value: 'XL' },
+            { label: 'XXL', value: 'XXL' },
+        ];
+
         console.log(props.route.params.id)
-        this.getProducts = this.getProducts.bind(this)
+        this.getProduct = this.getProduct.bind(this)
         this.selectedSize = this.selectedSize.bind(this)
     }
 
     componentDidMount() {
-        this.getProducts();
+        this.getProduct();
     }
 
-    getProducts() {
+    getProduct() {
         fetch('https://fakestoreapi.com/products/' + this.props.route.params.id)
             .then(res => res.json())
             .then((data) => {
@@ -98,40 +123,57 @@ export default class Product extends React.Component {
         this.setState({
             size: value
         });
-        console.log(value)
+    }
+
+    handleAddToCart(toast) {
+        if (this.isSizeSelected()) {
+            toast({
+                message: 'Product added to the cart.'
+            })
+        }
+    }
+
+    isSizeSelected() {
+        return this.state.size.length > 0;
     }
 
     render() {
         return (
-            <React.Fragment>
-                <ImageBackground source={{uri: this.state.product.image}} style={styles.heroImage} blurRadius={1}>
-                </ImageBackground>
-                <View style={styles.container}>
-                    <Text style={styles.title}>{this.state.product.title}</Text>
-                    <Text style={styles.price}>{this.state.product.price} €</Text>
-                    <RNPickerSelect
-                        placeholder={{label: "Select a size.."}}
-                        items={[
-                            { label: 'XS', value: 'XS' },
-                            { label: 'S', value: 'S' },
-                            { label: 'M', value: 'M' },
-                            { label: 'L', value: 'L' },
-                            { label: 'XL', value: 'XL' },
-                            { label: 'XXL', value: 'XXL' },
-                        ]}
-                        onValueChange={value => {
-                            this.selectedSize(value)
-                        }}
-                        style={pickerSelectStyles}
-                        value={this.state.size}
-                        useNativeAndroidPickerStyle={false}
-                    />
-                    <Button icon="cart" style={{backgroundColor: 'rgb(255, 69, 58)'}} mode="contained" onPress={() => console.log('Pressed')}>
-                        Add to cart
-                    </Button>
-                </View>
-            </React.Fragment>
-
+            <ThemeProvider theme={toastStyle}>
+                <CartContext.Consumer>
+                    {(context) => {
+                        //console.log(context)
+                        return (
+                        <ToastProvider>
+                            <ImageBackground source={{uri: this.state.product.image}} style={styles.heroImage} blurRadius={1}>
+                            </ImageBackground>
+                            <View style={styles.container}>
+                                <Text style={styles.title}>{this.state.product.title}</Text>
+                                <Text style={styles.price}>{this.state.product.price} €</Text>
+                                <RNPickerSelect
+                                    placeholder={{label: "Select a size.."}}
+                                    items={this.sizeAvailables}
+                                    onValueChange={value => {
+                                        this.selectedSize(value)
+                                    }}
+                                    style={pickerSelectStyles}
+                                    value={this.state.size}
+                                    useNativeAndroidPickerStyle={false}
+                                />
+                                <ToastContext.Consumer>
+                                    {({ toast }) => { return (
+                                        <Button disabled={!this.isSizeSelected()} color="#FF453A" icon="cart" mode="flat" onPress={() => {
+                                            this.handleAddToCart(toast);
+                                            context.addProduct(this.state.product)
+                                        }}>
+                                            Add to cart
+                                        </Button>)}}
+                                </ToastContext.Consumer>
+                            </View>
+                        </ToastProvider>
+                    )}}
+                </CartContext.Consumer>
+            </ThemeProvider>
         );
     }
 
