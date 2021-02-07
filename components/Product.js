@@ -1,26 +1,26 @@
-import React from "react"
-import {View, Text, StyleSheet, Dimensions, ImageBackground, AsyncStorage } from "react-native";
-import RNPickerSelect from 'react-native-picker-select';
+import React, {useRef} from "react"
+import {View, Text, StyleSheet, Dimensions, Image} from "react-native";
 import {Button} from "react-native-paper";
 import { ThemeProvider } from 'styled-components/native'
 import {ToastProvider, ToastContext } from 'react-native-styled-toast'
-import CartProvider from "../providers/CartProvider";
 import CartContext from "../contexts/CartContext";
+import Select from "./forms/select/Select";
+import {ImageHeaderScrollView, TriggeringView} from "react-native-image-header-scroll-view";
 
-const deviceWidth = Dimensions.get('window').width
+const {width, height} = Dimensions.get('window')
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        bottom: 0,
-        position: 'absolute',
-        width: deviceWidth,
+        width: width,
         backgroundColor: "white",
+        height: height / 2
     },
-    heroImage: {
-        flex: 1,
-        resizeMode: "cover",
-        justifyContent: "center",
-        opacity: 0.6
+    cover: {
+        backgroundColor: "rgba(0,0,0,0.5)",
+        zIndex: 100,
+        position: 'absolute',
+        bottom: 0,
+        height: '100%'
     },
     title: {
         fontSize: 30,
@@ -42,35 +42,6 @@ const styles = StyleSheet.create({
     }
 })
 
-let pickerSelectStyles = StyleSheet.create({
-    inputIOS: {
-        fontSize: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderWidth: 1,
-        borderColor: '#e3e3e3',
-        backgroundColor: 'white',
-        borderRadius: 4,
-        color: 'black',
-        paddingRight: 30, // to ensure the text is never behind the icon
-        margin: 20,
-        textAlign: 'center'
-    },
-    inputAndroid: {
-        fontSize: 16,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderWidth: 0.5,
-        borderColor: 'purple',
-        borderRadius: 8,
-        color: 'black',
-        paddingRight: 30, // to ensure the text is never behind the icon,
-        margin: 20,
-        textAlign: 'center',
-        backgroundColor: 'white'
-    }
-});
-
 const toastStyle =  {
     space: [0, 4, 8, 12, 16, 20, 24, 32, 40, 48],
     colors: {
@@ -87,12 +58,13 @@ const toastStyle =  {
 export default class Product extends React.Component {
     constructor(props) {
         super(props);
+        console.log(props)
         this.state = {
             product: {},
             size: '',
-            pickerStyle: pickerSelectStyles
         }
 
+        this.selectRef = React.createRef();
         this.sizeAvailables = [
             { label: 'XS', value: 'XS' },
             { label: 'S', value: 'S' },
@@ -102,7 +74,6 @@ export default class Product extends React.Component {
             { label: 'XXL', value: 'XXL' },
         ];
 
-        console.log(props.route.params.id)
         this.getProduct = this.getProduct.bind(this)
         this.selectedSize = this.selectedSize.bind(this)
     }
@@ -137,39 +108,41 @@ export default class Product extends React.Component {
         return this.state.size.length > 0;
     }
 
+    handleHidden = () => {
+        this.selectRef.current.handleClose();
+    }
+
     render() {
+
         return (
             <ThemeProvider theme={toastStyle}>
                 <CartContext.Consumer>
                     {(context) => {
-                        //console.log(context)
                         return (
                         <ToastProvider>
-                            <ImageBackground source={{uri: this.state.product.image}} style={styles.heroImage} blurRadius={1}>
-                            </ImageBackground>
+                            <ImageHeaderScrollView
+                                maxHeight={500}
+                                minHeight={100}
+                                headerImage={{uri: this.state.product.image}}
+                            >
                             <View style={styles.container}>
-                                <Text style={styles.title}>{this.state.product.title}</Text>
-                                <Text style={styles.price}>{this.state.product.price} €</Text>
-                                <RNPickerSelect
-                                    placeholder={{label: "Select a size.."}}
-                                    items={this.sizeAvailables}
-                                    onValueChange={value => {
-                                        this.selectedSize(value)
-                                    }}
-                                    style={pickerSelectStyles}
-                                    value={this.state.size}
-                                    useNativeAndroidPickerStyle={false}
-                                />
-                                <ToastContext.Consumer>
-                                    {({ toast }) => { return (
-                                        <Button disabled={!this.isSizeSelected()} color="#FF453A" icon="cart" mode="flat" onPress={() => {
-                                            this.handleAddToCart(toast);
-                                            context.addProduct(this.state.product)
-                                        }}>
-                                            Add to cart
-                                        </Button>)}}
-                                </ToastContext.Consumer>
+                                <TriggeringView>
+                                    <Text style={styles.title}>{this.state.product.title}</Text>
+                                    <Text style={styles.price}>{this.state.product.price} €</Text>
+                                    <Text>{this.state.product.description} €</Text>
+                                    <Select choices={this.sizeAvailables} ref={this.selectRef} title={`Sizes.. ${this.state.size}`} iconName="shirt-outline" handleSelect={this.selectedSize}/>
+                                    <ToastContext.Consumer>
+                                        {({ toast }) => { return (
+                                            <Button disabled={!this.isSizeSelected()} color="#FF453A" icon="cart" mode="flat" onPress={() => {
+                                                this.handleAddToCart(toast);
+                                                context.addProduct(this.state.product)
+                                            }}>
+                                                Add to cart
+                                            </Button>)}}
+                                    </ToastContext.Consumer>
+                                </TriggeringView>
                             </View>
+                            </ImageHeaderScrollView>
                         </ToastProvider>
                     )}}
                 </CartContext.Consumer>

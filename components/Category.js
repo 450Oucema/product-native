@@ -1,8 +1,7 @@
 import React from "react";
-import {FlatList, Text, View, StyleSheet, StatusBar, TextInput, Dimensions, TouchableOpacity, Image} from "react-native";
+import {View, Text, ScrollView, FlatList, TouchableOpacity, StyleSheet, StatusBar} from "react-native";
+import {ProductList} from "./ProductList";
 import {ProductItem} from "./ProductItem";
-
-const windowWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
     container: {
@@ -16,45 +15,49 @@ const styles = StyleSheet.create({
     },
 });
 
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
+const apiUrl = 'https://fakestoreapi.com/products/category/';
 
-export class ProductList extends React.Component {
+export default class Category extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            products: [],
-            search: '',
-            isSearching: props.isSearching
+            category: props.route.params.category,
+            products: []
         }
-        this.getProducts = this.getProducts.bind(this)
+        props.navigation.setOptions({title: capitalizeFirstLetter(this.state.category)})
+        this.handleNavigate = this.handleNavigate.bind(this)
         this.renderItem = this.renderItem.bind(this)
     }
 
     componentDidMount() {
-        this.props.products !== undefined ? this.setState({products: this.props.products}) : this.getProducts();
-        console.log(this.state.products)
-    }
-
-    getProducts() {
-        fetch('https://fakestoreapi.com/products')
+        fetch(apiUrl + this.state.category.replace(" ", "%20"))
             .then(res => res.json())
             .then((data) => {
                 this.setState({products: data})
             })
     }
 
+    handleNavigate(id) {
+        console.log(this.props)
+        this.props.navigation.navigate('Product', {id: id})
+    }
+
     renderItem(product) {
         return (
-            <TouchableOpacity onPress={() => this.props.handleNavigate(product.item.id)}>
+            <TouchableOpacity onPress={() => this.handleNavigate(product.item.id)}>
                 <ProductItem product={product}/>
             </TouchableOpacity>
         )
     }
-
 
     render() {
         return <View style={styles.container}>
             <FlatList data={this.state.products} renderItem={this.renderItem} keyExtractor={product => product.id.toString()} />
         </View>
     }
+
 }

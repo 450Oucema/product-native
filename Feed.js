@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, Text, Image, Dimensions, ImageBackground, ScrollView} from 'react-native';
+import {StyleSheet, View, Text, Image, Dimensions, ImageBackground, ScrollView, TouchableOpacity} from 'react-native';
 import {ProductList} from "./components/ProductList";
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource'
 const CartContext = React.createContext('light');
@@ -45,6 +45,9 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 42,
         backgroundColor: "#000000a0",
+        position: 'absolute',
+        bottom: 0,
+        width: '100%'
     },
     row: {
         flex: 1,
@@ -52,6 +55,28 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20
+    },
+    category: {
+        width: width / 2.2,
+        height: 100,
+        margin: 5,
+        overflow: 'hidden',
+        borderRadius: 5
+    },
+    categoryBackground: {
+        width: '100%',
+        height: '100%',
+        resizeMode: "center"
+    },
+    categoryTitle: {
+        color: 'white',
+        fontWeight: 'bold',
+        textAlign: 'center',
+        backgroundColor: '#00000054',
+        position: 'absolute',
+        bottom: 0,
+        width: '100%',
+        padding: 2
     }
 });
 
@@ -64,7 +89,7 @@ export default class Feed extends React.Component {
         }
         this.handleTap = this.handleTap.bind(this);
         this.handleNavigate = this.handleNavigate.bind(this);
-        console.log(this.context)
+        this.handleNavigateToCategory = this.handleNavigateToCategory.bind(this);
     }
 
     static contextType = CartContext;
@@ -76,6 +101,10 @@ export default class Feed extends React.Component {
 
     handleNavigate(id) {
         this.props.navigation.navigate('Product', {id: id})
+    }
+
+    handleNavigateToCategory(category) {
+        this.props.navigation.navigate('Category', {category: category})
     }
 
     render() {
@@ -90,14 +119,37 @@ export default class Feed extends React.Component {
                             </View>
                         </ImageBackground>
                         <View style={styles.row}>
-                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'powderblue'}} />
-                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'skyblue'}} />
+                            <TouchableOpacity onPress={() => this.handleNavigateToCategory('men clothing')}>
+                                <View style={styles.category}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/men.jpg')}>
+                                        <Text style={styles.categoryTitle}>Homme</Text>
+                                    </ImageBackground>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.handleNavigateToCategory('women clothing')}>
+                                <View style={styles.category}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/women.jpg')}>
+                                        <Text style={styles.categoryTitle}>Femme</Text>
+                                    </ImageBackground>
+                                </View>
+                            </TouchableOpacity>
                         </View>
                         <View style={styles.row}>
-                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'red'}} />
-                            <View style={{width: width / 2.2, height: 100, backgroundColor: 'pink'}} />
+                            <TouchableOpacity onPress={() => this.handleNavigateToCategory('electronics')}>
+                                <View style={styles.category}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/electronic.jpg')}>
+                                        <Text style={styles.categoryTitle}>High tech</Text>
+                                    </ImageBackground>
+                                </View>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.handleNavigateToCategory('jewelery')}>
+                                <View style={styles.category}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/jewelry.jpg')}>
+                                        <Text style={styles.categoryTitle}>Bijoux</Text>
+                                    </ImageBackground>
+                                </View>
+                            </TouchableOpacity>
                         </View>
-                        <ProductList handleNavigate={this.handleNavigate} isSearching={this.state.isSearching}/>
                     </View>
                 </ScrollView>
         </View>
