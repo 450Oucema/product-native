@@ -1,11 +1,22 @@
 import React from "react";
 import {View} from "react-native";
-import NewAddressForm from "../../forms/address/NewAddressForm";
+import UserContext from "../../../contexts/UserContext";
+import EditAddressForm from "../../forms/address/EditAddressForm";
 
-export default function AddAddress() {
+export default function EditAddress(props) {
+    const id = props.route.params.address;
+
+    const handleSubmit = () => {
+        props.navigation.navigate('Order')
+    }
+
     return (
-        <View>
-            <NewAddressForm/>
-        </View>
+        <UserContext.Consumer>
+            {context => (
+                <View style={{flex: 1}}>
+                    <EditAddressForm address={context.deliveryAddresses.find(address => address.id === id)} handleSubmit={handleSubmit}/>
+                </View>
+            )}
+        </UserContext.Consumer>
     )
 }

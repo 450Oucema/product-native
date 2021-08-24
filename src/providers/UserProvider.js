@@ -10,7 +10,7 @@ export default class UserProvider extends Component {
             email: "oucema@oucema.fr",
             deliveryAddresses: [
                 {
-                    id: 1,
+                    id: "1",
                     street: 'Rue des Grazons',
                     number: "4",
                     additionalAddress: "Porte 4",
@@ -21,7 +21,7 @@ export default class UserProvider extends Component {
                 }
             ],
             user: props.user,
-            favoriteAddress: 1
+            favoriteAddress: "1"
         }
     }
     
@@ -36,6 +36,16 @@ export default class UserProvider extends Component {
                 favoriteAddress: this.state.favoriteAddress,
                 setUser: (user) => {
                     this.setState({user: user})
+                },
+                addAddress: (address) => {
+                    let addresses = {...this.state}.deliveryAddresses.concat(address);
+                    this.setState({deliveryAddresses: addresses})
+                },
+                editAddress: (editedAddress) => {
+                    let addresses = {...this.state}.deliveryAddresses;
+                    const addressIndex = addresses.findIndex((address => address.id === editedAddress.id));
+                    addresses[addressIndex] = editedAddress;
+                    this.setState({deliveryAddresses: addresses})
                 }
             }}>
                 {this.props.children}

@@ -37,19 +37,21 @@ const styles = StyleSheet.create({
         marginBottom: 5
     }
 })
-export default function NewAddressForm() {
+export default function EditAddressForm(props) {
 
-    const [street, onChangeStreet] = React.useState('');
-    const [number, onChangeNumber] = React.useState('');
-    const [additionalAddress, onChangeAdditionalAddress] = React.useState('');
-    const [zipCode, onChangeZipCode] = React.useState('');
-    const [city, onChangeCity] = React.useState('');
-    const [state, onChangeState] = React.useState('');
-    const [country, onChangeCountry] = React.useState('');
+    const id = props.address.id;
+    const [street, onChangeStreet] = React.useState(props.address.street);
+    const [number, onChangeNumber] = React.useState(props.address.number);
+    const [additionalAddress, onChangeAdditionalAddress] = React.useState(props.address.additionalAddress);
+    const [zipCode, onChangeZipCode] = React.useState(props.address.zipCode);
+    const [city, onChangeCity] = React.useState(props.address.city);
+    const [state, onChangeState] = React.useState(props.address.state);
+    const [country, onChangeCountry] = React.useState(props.address.country);
 
     const handleSubmit = (context) => {
-        const address = {number, street, zipCode, additionalAddress, city, state, country};
-        context.addAddress(address)
+        const address = {id, number, street, zipCode, additionalAddress, city, state, country};
+        context.editAddress(address)
+        props.handleSubmit()
     }
 
     return (

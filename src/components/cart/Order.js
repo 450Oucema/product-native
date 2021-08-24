@@ -22,6 +22,10 @@ const paymentMethods = [
 export default class Order extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            selectedAddress: null
+        }
+
         this.getSelectableAddresses = this.getSelectableAddresses.bind(this)
         this.getSelectablePaymentMethods = this.getSelectablePaymentMethods.bind(this)
     }
@@ -51,16 +55,16 @@ export default class Order extends React.Component {
                     <CartContext.Consumer>
                         {cartContext => (
                             <Card>
-                                <Card.Cover source={require("../../assets/delivery.jpg")} />
+                                <Card.Cover source={require("../../../assets/delivery.jpg")} />
                                 <Card.Title title={`You have ${cartContext.cartItems.length} product in your cart`} subtitle={`Please specify your delivery address`}/>
                                 <Card.Content>
                                     <List.Section>
                                         <List.Subheader>Your address</List.Subheader>
-                                        <View style={{flexDirection: 'row'}}>
-                                            <View style={{width: '90%', height: 50}}>
+                                        <View style={{flexDirection: 'row', zIndex: 50}}>
+                                            <View style={{width: '80%', height: 50, zIndex: 50}}>
                                                 <DropDownPicker
                                                     items={this.getSelectableAddresses(userContext.deliveryAddresses)}
-                                                    defaultValue={userContext.favoriteAddress}
+                                                    defaultValue={this.state.selectedAddress}
                                                     containerStyle={{height: 40, zIndex: 50}}
                                                     style={{backgroundColor: '#fafafa'}}
                                                     labelStyle={{
@@ -74,15 +78,24 @@ export default class Order extends React.Component {
                                                         justifyContent: 'center'
                                                     }}
                                                     dropDownStyle={{backgroundColor: '#fafafa', zIndex: 50}}
-                                                    onChangeItem={item => console.log(item)}
+                                                    onChangeItem={item => this.setState({selectedAddress: item.value})}
                                                 />
                                             </View>
-                                            <View style={{width: '20%', height: 40}}>
+                                            <View style={{width: '10%', height: 40}}>
                                                 <IconButton
+                                                    disabled={this.state.selectedAddress === null}
                                                     icon="playlist-edit"
                                                     color="red"
                                                     size={20}
-                                                    onPress={() => this.props.navigation.navigate('AddressEdit')}
+                                                    onPress={() => this.props.navigation.navigate('EditAddress', {address: this.state.selectedAddress})}
+                                                />
+                                            </View>
+                                            <View style={{width: '10%', height: 40}}>
+                                                <IconButton
+                                                    icon="plus"
+                                                    color="red"
+                                                    size={20}
+                                                    onPress={() => this.props.navigation.navigate('AddAddress')}
                                                 />
                                             </View>
                                         </View>

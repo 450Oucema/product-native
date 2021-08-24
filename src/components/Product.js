@@ -65,7 +65,6 @@ const toastStyle =  {
 export default class Product extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props)
         this.state = {
             product: {},
             size: '',
@@ -87,7 +86,7 @@ export default class Product extends React.Component {
     }
 
     componentDidMount() {
-        this.getProduct().then(() => this.props.navigation.setOptions({title: truncate(this.state.product.title, 5)}));
+        this.getProduct().then(() => this.props.navigation.setOptions({title: this.state.product.title}));
     }
 
     getProduct = async () => {

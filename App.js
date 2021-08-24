@@ -1,12 +1,16 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import Home from "./components/Home";
 import {Ionicons} from "@expo/vector-icons";
-import Settings from "./components/Settings";
+import Settings from "./src/components/settings/Settings";
 import {createMaterialBottomTabNavigator} from "@react-navigation/material-bottom-tabs";
-import Cart from "./components/Cart";
-import CartProvider from "./providers/CartProvider";
-import CartNavigator from "./components/CartNavigator";
+import Cart from "./src/components/cart/Cart";
+import CartNavigator from "./src/components/cart/CartNavigator";
+import SettingsNavigator from "./src/components/settings/SettingsNavigator";
+import firebase from "firebase"
+import Explore from "./src/components/explore/Explore";
+import UserProvider from "./src/providers/UserProvider";
+import CartProvider from "./src/providers/CartProvider";
+import environment from "./src/environment/environment";
 
 const MyTheme = {
     dark: false,
@@ -21,34 +25,47 @@ const MyTheme = {
 };
 
 const Tab = createMaterialBottomTabNavigator();
+firebase.initializeApp(environment.firebaseConfig)
 export default function App() {
+
+    const [user, setUser] = useState();
+    const onAuthStateChanged =(user) => {
+        setUser(user);
+    }
+
+    useEffect(() => {
+        return firebase.auth().onAuthStateChanged(onAuthStateChanged)
+    }, [])
+
   return (
-      <CartProvider>
-        <NavigationContainer theme={MyTheme}>
-            <Tab.Navigator
-                screenOptions={({ route }) => ({
-                    tabBarIcon: ({ focused, color, size }) => {
-                        let iconName;
-                        if (route.name === 'Home') {
-                            iconName = focused ? 'home' : 'home-outline';
-                        } else if (route.name === 'Settings') {
-                            iconName = focused ? 'cog' : 'cog-outline';
-                        } else if (route.name === 'Cart') {
-                            iconName = focused ? 'cart' : 'cart-outline';
-                        }
-                        return <Ionicons name={iconName} size={20} color={'rgb(255,69,58)'} />;
-                    },
-                })}
-                tabBarOptions={{
-                    activeTintColor: 'tomato',
-                    inactiveTintColor: 'gray',
-                }}
-            >
-                <Tab.Screen name="Home" component={Home} />
-                <Tab.Screen name="Cart" component={CartNavigator} />
-                <Tab.Screen name="Settings" component={Settings} />
-            </Tab.Navigator>
-        </NavigationContainer>
-      </CartProvider>
+      <UserProvider user={user}>
+          <CartProvider>
+              <NavigationContainer theme={MyTheme}>
+                  <Tab.Navigator
+                      screenOptions={({ route }) => ({
+                          tabBarIcon: ({ focused, color, size }) => {
+                              let iconName;
+                              if (route.name === 'Explore') {
+                                  iconName = focused ? 'home' : 'home-outline';
+                              } else if (route.name === 'Settings') {
+                                  iconName = focused ? 'cog' : 'cog-outline';
+                              } else if (route.name === 'Cart') {
+                                  iconName = focused ? 'cart' : 'cart-outline';
+                              }
+                              return <Ionicons name={iconName} size={20} color={'rgb(255,69,58)'} />;
+                          },
+                      })}
+                      tabBarOptions={{
+                          activeTintColor: 'tomato',
+                          inactiveTintColor: 'gray',
+                      }}
+                  >
+                      <Tab.Screen name="Explore" component={Explore} />
+                      <Tab.Screen name="Cart" component={CartNavigator} />
+                      <Tab.Screen name="Settings" component={SettingsNavigator} />
+                  </Tab.Navigator>
+              </NavigationContainer>
+          </CartProvider>
+      </UserProvider>
   );
 }

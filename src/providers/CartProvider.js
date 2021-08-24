@@ -26,6 +26,7 @@ export default class CartProvider extends Component {
                         actualItems[index] = existingProduct;
                     } else {
                         addedProduct.count = 1;
+                        addedProduct.id = addedProduct.id.toString();
                         actualItems = {...this.state}.cartItems.concat(addedProduct);
                     }
 
