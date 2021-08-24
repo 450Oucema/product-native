@@ -1,25 +1,25 @@
-import Feed from "../Feed";
 import React from "react"
 import {createStackNavigator, HeaderBackButton} from "@react-navigation/stack";
-import Product from "./Product";
-import Category from "./Category";
+import Cart from "./Cart";
+import Product from "../Product";
+import Order from "./Order";
 
 const Stack = createStackNavigator();
 
-
-export default function Home() {
+export default function CartNavigator() {
     return (
-        <Stack.Navigator mode={"card"} headerMode={"screen"}>
-            <Stack.Screen name="Feed" component={Feed} />
+        <Stack.Navigator>
+            <Stack.Screen name="Cart" component={Cart} />
             <Stack.Screen options={{
                 headerLeft: (props) => (
                     <HeaderBackButton {...props} truncatedLabel={""} tintColor={'#FF453A'}/>
                 )}
-            } name="Product" component={Product} />
+            } name="ProductView" component={Product} />
             <Stack.Screen options={{
                 headerLeft: (props) => (
-                    <HeaderBackButton {...props} tintColor={'#FF453A'}/>
-                )}} name="Category" component={Category} />
+                    <HeaderBackButton {...props} truncatedLabel={""} tintColor={'#FF453A'}/>
+                )}
+            } name="Order" component={Order} />
         </Stack.Navigator>
     )
 }

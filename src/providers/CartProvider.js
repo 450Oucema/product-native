@@ -5,7 +5,8 @@ export default class CartProvider extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            cartItems: []
+            cartItems: [],
+            cartAmount: 0
         }
     }
     
@@ -13,6 +14,7 @@ export default class CartProvider extends Component {
         return (
             <CartContext.Provider value={{
                 cartItems: this.state.cartItems,
+                cartAmount: this.state.cartAmount,
                 addProduct: addedProduct => {
                     let existingProduct = this.state.cartItems.find(product => product.id === addedProduct.id)
                     let actualItems;
@@ -26,9 +28,11 @@ export default class CartProvider extends Component {
                         addedProduct.count = 1;
                         actualItems = {...this.state}.cartItems.concat(addedProduct);
                     }
+
                     this.setState({
-                        cartItems: actualItems
-                    })
+                        cartItems: actualItems,
+                        cartAmount: this.state.cartAmount + addedProduct.price
+                    });
                 },
                 removeProduct: id => {
                     const actualItems = {...this.state}.cartItems.filter(product => product.id !== id);

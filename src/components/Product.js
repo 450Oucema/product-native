@@ -1,11 +1,13 @@
 import React, {useRef} from "react"
-import {View, Text, StyleSheet, Dimensions, Image} from "react-native";
+import {View, Text, StyleSheet, Dimensions, Image, ActivityIndicator} from "react-native";
 import {Button} from "react-native-paper";
 import { ThemeProvider } from 'styled-components/native'
 import {ToastProvider, ToastContext } from 'react-native-styled-toast'
 import CartContext from "../contexts/CartContext";
-import Select from "./forms/select/Select";
+import DropDownPicker from 'react-native-dropdown-picker';
 import {ImageHeaderScrollView, TriggeringView} from "react-native-image-header-scroll-view";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import truncate from "../functions/truncate";
 
 const {width, height} = Dimensions.get('window')
 const styles = StyleSheet.create({
@@ -13,7 +15,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: width,
         backgroundColor: "white",
-        height: height / 2
+        height: height
     },
     cover: {
         backgroundColor: "rgba(0,0,0,0.5)",
@@ -33,6 +35,11 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textAlign: "left",
         marginLeft: 30
+    },
+    description: {
+        fontSize: 20,
+        textAlign: "left",
+        margin: 30
     },
     size: {
         fontSize: 20,
@@ -76,22 +83,45 @@ export default class Product extends React.Component {
 
         this.getProduct = this.getProduct.bind(this)
         this.selectedSize = this.selectedSize.bind(this)
+        this.productExists = this.productExists.bind(this)
     }
 
     componentDidMount() {
-        this.getProduct();
+        this.getProduct().then(() => this.props.navigation.setOptions({title: truncate(this.state.product.title, 5)}));
     }
 
-    getProduct() {
-        fetch('https://fakestoreapi.com/products/' + this.props.route.params.id)
-            .then(res => res.json())
-            .then((data) => {
-                this.setState({product: data})
-            })
+    getProduct = async () => {
+        try {
+            const stored = await AsyncStorage.getItem(`product-${this.props.route.params.id}`)
+            if (stored !== null) {
+                this.setState({product: JSON.parse(stored)})
+            } else {
+                fetch('https://fakestoreapi.com/products/' + this.props.route.params.id)
+                    .then(res => res.json())
+                    .then((data) => {
+                        this.setState({product: data})
+                        this.storeData(data)
+                    })
+            }
+        } catch (e) {
+            console.log('error-get-product', e)
+        }
+    }
+
+    storeData = async (value) => {
+        try {
+            const jsonValue = JSON.stringify(value)
+            await AsyncStorage.setItem(`product-${this.props.route.params.id}`, jsonValue)
+        } catch (e) {
+            console.log('error-store-product', e)
+        }
     }
 
     selectedSize(value) {
+        let product = this.state.product;
+        product.size = value;
         this.setState({
+            product: product,
             size: value
         });
     }
@@ -112,6 +142,9 @@ export default class Product extends React.Component {
         this.selectRef.current.handleClose();
     }
 
+    productExists() {
+    }
+
     render() {
 
         return (
@@ -120,6 +153,7 @@ export default class Product extends React.Component {
                     {(context) => {
                         return (
                         <ToastProvider>
+                            {Object.keys(this.state.product).length === 0 && this.state.product.constructor === Object ? <ActivityIndicator size="large" style={{flex: 1, alignItems: "center"}}/> : null}
                             <ImageHeaderScrollView
                                 maxHeight={500}
                                 minHeight={100}
@@ -129,8 +163,25 @@ export default class Product extends React.Component {
                                 <TriggeringView>
                                     <Text style={styles.title}>{this.state.product.title}</Text>
                                     <Text style={styles.price}>{this.state.product.price} €</Text>
-                                    <Text>{this.state.product.description} €</Text>
-                                    <Select choices={this.sizeAvailables} ref={this.selectRef} title={`Sizes.. ${this.state.size}`} iconName="shirt-outline" handleSelect={this.selectedSize}/>
+                                    <Text style={styles.description}>{this.state.product.description}</Text>
+                                    <DropDownPicker
+                                        items={this.sizeAvailables}
+                                        defaultValue={this.state.selectedSize}
+                                        containerStyle={{height: 40}}
+                                        style={{backgroundColor: '#fafafa'}}
+                                        labelStyle={{
+                                            fontSize: 14,
+                                            textAlign: 'center',
+                                            color: '#000',
+                                            fontWeight: 'bold'
+                                        }}
+                                        placeholder={"Select your size"}
+                                        itemStyle={{
+                                            justifyContent: 'center'
+                                        }}
+                                        dropDownStyle={{backgroundColor: '#fafafa'}}
+                                        onChangeItem={item => this.selectedSize(item.value)}
+                                    />
                                     <ToastContext.Consumer>
                                         {({ toast }) => { return (
                                             <Button disabled={!this.isSizeSelected()} color="#FF453A" icon="cart" mode="flat" onPress={() => {

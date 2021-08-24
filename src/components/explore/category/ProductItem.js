@@ -1,5 +1,6 @@
-import {Dimensions, Image, StatusBar, StyleSheet, Text, View} from "react-native";
+import {Dimensions, Image, StyleSheet, Text, View} from "react-native";
 import React from "react";
+import truncate from "../../../functions/truncate";
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -30,10 +31,7 @@ const styles = StyleSheet.create({
     }
 });
 export const ProductItem = ({product}) => {
-    let title = product.item.title;
-    if (title.length > 35) {
-        title = `${title.substring(0,34)}...`
-    }
+    let title = truncate(product.item.title, 35);
     return (
         <View style={styles.item}>
             <Image source={{uri: product.item.image}} style={styles.avatar}/>

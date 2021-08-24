@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#e3e3e3',
         backgroundColor: 'white',
+        fontWeight: 'bold',
         borderRadius: 4,
         color: 'black',
         paddingRight: 30, // to ensure the text is never behind the icon
@@ -51,15 +52,6 @@ const styles = StyleSheet.create({
         margin: 50
     }
 });
-
-const choices = [
-    { label: 'XS', value: 'XS' },
-    { label: 'S', value: 'S' },
-    { label: 'M', value: 'M' },
-    { label: 'L', value: 'L' },
-    { label: 'XL', value: 'XL' },
-    { label: 'XXL', value: 'XXL' },
-];
 
 export default class Select extends React.Component {
     constructor(props) {

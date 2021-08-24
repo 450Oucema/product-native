@@ -1,11 +1,10 @@
 import React from 'react';
-import {StyleSheet, View, Text, Image, Dimensions, ImageBackground, ScrollView, TouchableOpacity} from 'react-native';
-import {ProductList} from "./components/ProductList";
+import {StyleSheet, View, Text, Dimensions, ImageBackground, ScrollView, TouchableOpacity} from 'react-native';
 import resolveAssetSource from 'react-native/Libraries/Image/resolveAssetSource'
 const CartContext = React.createContext('light');
 const {height, width} = Dimensions.get('window')
 const heroSize = () => {
-    let source = resolveAssetSource(require('./assets/hero-feed.jpg'))
+    let source = resolveAssetSource(require('../../assets/hero-feed.jpg'))
     const screenWidth = width
     const scaleFactor = (source.width / screenWidth)
     const imageHeight = (source.height / scaleFactor)
@@ -112,7 +111,7 @@ export default class Feed extends React.Component {
             <View style={styles.container}>
                 <ScrollView>
                     <View>
-                        <ImageBackground source={require('./assets/hero-feed.jpg')} style={styles.hero}>
+                        <ImageBackground source={require('../../assets/hero-feed.jpg')} style={styles.hero}>
                             <View style={styles.banner}>
                                 <Text style={styles.titleText}>Nouveautés</Text>
                                 <Text style={styles.baseText}>Découvrez les dernières tendances</Text>
@@ -121,14 +120,14 @@ export default class Feed extends React.Component {
                         <View style={styles.row}>
                             <TouchableOpacity onPress={() => this.handleNavigateToCategory('men clothing')}>
                                 <View style={styles.category}>
-                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/men.jpg')}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('../../assets/men.jpg')}>
                                         <Text style={styles.categoryTitle}>Homme</Text>
                                     </ImageBackground>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => this.handleNavigateToCategory('women clothing')}>
                                 <View style={styles.category}>
-                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/women.jpg')}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('../../assets/women.jpg')}>
                                         <Text style={styles.categoryTitle}>Femme</Text>
                                     </ImageBackground>
                                 </View>
@@ -137,14 +136,14 @@ export default class Feed extends React.Component {
                         <View style={styles.row}>
                             <TouchableOpacity onPress={() => this.handleNavigateToCategory('electronics')}>
                                 <View style={styles.category}>
-                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/electronic.jpg')}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('../../assets/electronic.jpg')}>
                                         <Text style={styles.categoryTitle}>High tech</Text>
                                     </ImageBackground>
                                 </View>
                             </TouchableOpacity>
                             <TouchableOpacity onPress={() => this.handleNavigateToCategory('jewelery')}>
                                 <View style={styles.category}>
-                                    <ImageBackground style={styles.categoryBackground} source={require('./assets/jewelry.jpg')}>
+                                    <ImageBackground style={styles.categoryBackground} source={require('../../assets/jewelry.jpg')}>
                                         <Text style={styles.categoryTitle}>Bijoux</Text>
                                     </ImageBackground>
                                 </View>
